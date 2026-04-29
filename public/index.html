@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travis CU Fair Lending Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<!-- Header -->
+<header class="bg-white border-b border-slate-200">
+  <div class="max-w-7xl mx-auto px-6 py-5">
+    <h1 class="text-2xl font-semibold text-slate-900">Travis CU Fair Lending Explorer</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      Interactive analysis of Travis Credit Union's 2024 HMDA loan applications.
+      Public data sourced from the Consumer Financial Protection Bureau.
+    </p>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-6">
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+    <!-- Filter Panel -->
+    <aside class="lg:col-span-1 bg-white rounded-lg border border-slate-200 p-5 h-fit sticky top-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-slate-900">Filters</h2>
+        <button id="clear-filters"
+                class="text-xs text-slate-500 hover:text-slate-800 underline">
+          Clear all
+        </button>
+      </div>
+      <div id="filter-panel" class="space-y-5">
+        <!-- Populated by app.js from /api/options -->
+        <p class="text-sm text-slate-400">Loading filters…</p>
+      </div>
+    </aside>
+
+    <!-- Results Area -->
+    <section class="lg:col-span-3 space-y-6">
+
+      <!-- Group + Metric Selector -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Group by</span>
+            <select id="group-by" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
+                                          focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                                          border px-3 py-2 bg-white">
+              <option value="derived_race">Race</option>
+              <option value="derived_ethnicity">Ethnicity</option>
+              <option value="derived_sex">Sex</option>
+              <option value="applicant_age">Age bracket</option>
+              <option value="loan_purpose">Loan purpose</option>
+              <option value="action_taken">Action taken</option>
+              <option value="county_code">County</option>
+              <option value="derived_loan_product_type">Loan product type</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Metric</span>
+            <select id="metric" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
+                                         focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                                         border px-3 py-2 bg-white">
+              <option value="count">Application count</option>
+              <option value="approval_rate">Approval rate (%)</option>
+              <option value="avg_loan_amount">Avg loan amount</option>
+              <option value="avg_income">Avg applicant income</option>
+              <option value="avg_interest_rate">Avg interest rate (%)</option>
+              <option value="avg_ltv">Avg loan-to-value ratio</option>
+            </select>
+          </label>
+        </div>
+
+        <p id="summary-line" class="text-sm text-slate-500 mt-4"></p>
+      </div>
+
+      <!-- Chart -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5">
+        <div class="relative h-80">
+          <canvas id="results-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5">
+        <h2 class="text-base font-semibold text-slate-900 mb-3">Detail</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+            <tr>
+              <th class="px-3 py-2 text-left font-medium">Bucket</th>
+              <th class="px-3 py-2 text-right font-medium">Count</th>
+              <th class="px-3 py-2 text-right font-medium">Value</th>
+            </tr>
+            </thead>
+            <tbody id="results-table" class="divide-y divide-slate-100">
+            <!-- Filled by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <!-- Footnote -->
+  <footer class="mt-10 text-xs text-slate-400 leading-relaxed">
+    <p>Data source:
+      <a class="underline hover:text-slate-600"
+         href="https://ffiec.cfpb.gov/data-publication/modified-lar/2024" target="_blank" rel="noopener">
+        CFPB FFIEC HMDA Modified LAR, 2024
+      </a>.
+      This tool is an independent academic / portfolio project and is not affiliated with or endorsed by Travis Credit Union or the CFPB.
+    </p>
+  </footer>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "sidap2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node_modules/.bin/nodemon server/index.js",
+    "builddb": "node scripts/setupDatabase.js",
+    "seed": "node scripts/seedDatabase.js",
+    "fresh": "npm i && node scripts/setupDatabase.js && node scripts/seedDatabase.js && nodemon server/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "csv-parse": "^6.2.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.22.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
