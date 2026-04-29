@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node_modules/.bin/nodemon server/index.js",
+    "start": "node server/index.js",
+    "dev": "node_modules/.bin/nodemon server/index.js",
+    "build": "node scripts/setupDatabase.js && node scripts/seedDatabase.js",
     "builddb": "node scripts/setupDatabase.js",
     "seed": "node scripts/seedDatabase.js",
     "fresh": "npm i && node scripts/setupDatabase.js && node scripts/seedDatabase.js && nodemon server/index.js"
