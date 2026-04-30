@@ -35,104 +35,217 @@
 </header>
 
 <main class="max-w-7xl mx-auto px-6 py-6">
-  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-    <!-- Filter Panel -->
-    <aside class="lg:col-span-1 bg-white rounded-lg border border-slate-200 p-5 h-fit sticky top-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-base font-semibold text-slate-900">Filters</h2>
-        <button id="clear-filters"
-                class="text-xs text-slate-500 hover:text-slate-800 underline">
-          Clear all
-        </button>
-      </div>
-      <div id="filter-panel" class="space-y-5">
-        <!-- Populated by app.js from /api/options -->
-        <p class="text-sm text-slate-400">Loading filters…</p>
-      </div>
-    </aside>
+  <!-- Tab switcher -->
+  <div class="flex gap-2 mb-6 border-b border-slate-200">
+    <button id="tab-explorer"
+            class="tab-btn tab-btn-active px-4 py-2 text-sm font-medium">
+      Explorer
+    </button>
+    <button id="tab-demographics"
+            class="tab-btn px-4 py-2 text-sm font-medium">
+      Demographic Comparison
+    </button>
+  </div>
 
-    <!-- Results Area -->
-    <section class="lg:col-span-3 space-y-6">
+  <!-- ============ TAB 1: Explorer (v1) ============ -->
+  <div id="explorer-tab">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-      <!-- Group + Metric Selector -->
-      <div class="bg-white rounded-lg border border-slate-200 p-5">
+      <!-- Filter Panel -->
+      <aside class="lg:col-span-1 bg-white rounded-lg border border-slate-200 p-5 h-fit sticky top-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-semibold text-slate-900">Filters</h2>
+          <button id="clear-filters"
+                  class="text-xs text-slate-500 hover:text-slate-800 underline">
+            Clear all
+          </button>
+        </div>
+        <div id="filter-panel" class="space-y-5">
+          <p class="text-sm text-slate-400">Loading filters…</p>
+        </div>
+      </aside>
+
+      <!-- Results Area -->
+      <section class="lg:col-span-3 space-y-6">
+
+        <!-- Group + Metric Selector -->
+        <div class="bg-white rounded-lg border border-slate-200 p-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Group by</span>
+              <select id="group-by" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
+                                            focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                                            border px-3 py-2 bg-white">
+                <option value="derived_race">Race</option>
+                <option value="derived_ethnicity">Ethnicity</option>
+                <option value="derived_sex">Sex</option>
+                <option value="applicant_age">Age bracket</option>
+                <option value="loan_purpose">Loan purpose</option>
+                <option value="action_taken">Action taken</option>
+                <option value="county_code">County</option>
+                <option value="derived_loan_product_type">Loan product type</option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Metric</span>
+              <select id="metric" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
+                                           focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                                           border px-3 py-2 bg-white">
+                <option value="count">Application count</option>
+                <option value="approval_rate">Approval rate (%)</option>
+                <option value="avg_loan_amount">Avg loan amount</option>
+                <option value="avg_income">Avg applicant income</option>
+                <option value="avg_interest_rate">Avg interest rate (%)</option>
+                <option value="avg_ltv">Avg loan-to-value ratio</option>
+              </select>
+            </label>
+          </div>
+
+          <p id="summary-line" class="text-sm text-slate-500 mt-4"></p>
+        </div>
+
+        <!-- Chart -->
+        <div class="bg-white rounded-lg border border-slate-200 p-5">
+          <div class="relative h-80">
+            <canvas id="results-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-lg border border-slate-200 p-5">
+          <h2 class="text-base font-semibold text-slate-900 mb-3">Detail</h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+              <tr>
+                <th class="px-3 py-2 text-left font-medium">Bucket</th>
+                <th class="px-3 py-2 text-right font-medium">Count</th>
+                <th class="px-3 py-2 text-right font-medium">Value</th>
+              </tr>
+              </thead>
+              <tbody id="results-table" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: Demographics (v2) ============ -->
+  <div id="demographics-tab" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Geography picker -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5 lg:col-span-3">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label class="block">
-            <span class="text-sm font-medium text-slate-700">Group by</span>
-            <select id="group-by" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
-                                          focus:border-indigo-500 focus:ring-indigo-500 text-sm
-                                          border px-3 py-2 bg-white">
-              <option value="derived_race">Race</option>
-              <option value="derived_ethnicity">Ethnicity</option>
-              <option value="derived_sex">Sex</option>
-              <option value="applicant_age">Age bracket</option>
-              <option value="loan_purpose">Loan purpose</option>
-              <option value="action_taken">Action taken</option>
-              <option value="county_code">County</option>
-              <option value="derived_loan_product_type">Loan product type</option>
+            <span class="text-sm font-medium text-slate-700">Geographic level</span>
+            <select id="demo-level"
+                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
+                           focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                           border px-3 py-2 bg-white">
+              <option value="all">Entire service area</option>
+              <option value="county">County</option>
+              <option value="tract">Census tract</option>
             </select>
           </label>
 
           <label class="block">
-            <span class="text-sm font-medium text-slate-700">Metric</span>
-            <select id="metric" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
-                                         focus:border-indigo-500 focus:ring-indigo-500 text-sm
-                                         border px-3 py-2 bg-white">
-              <option value="count">Application count</option>
-              <option value="approval_rate">Approval rate (%)</option>
-              <option value="avg_loan_amount">Avg loan amount</option>
-              <option value="avg_income">Avg applicant income</option>
-              <option value="avg_interest_rate">Avg interest rate (%)</option>
-              <option value="avg_ltv">Avg loan-to-value ratio</option>
+            <span class="text-sm font-medium text-slate-700">Geography</span>
+            <select id="demo-geo-id" disabled
+                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm
+                           focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                           border px-3 py-2 bg-white disabled:bg-slate-50 disabled:text-slate-400">
+              <option value="">— entire service area —</option>
             </select>
           </label>
         </div>
-
-        <p id="summary-line" class="text-sm text-slate-500 mt-4"></p>
+        <p id="demo-summary" class="text-sm text-slate-500 mt-4"></p>
       </div>
 
-      <!-- Chart -->
-      <div class="bg-white rounded-lg border border-slate-200 p-5">
-        <div class="relative h-80">
-          <canvas id="results-chart"></canvas>
+      <!-- Side-by-side bar chart -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5 lg:col-span-3">
+        <h2 class="text-base font-semibold text-slate-900 mb-3">
+          Applicants vs Residents (% of each group)
+        </h2>
+        <div class="relative h-96">
+          <canvas id="demo-chart"></canvas>
         </div>
+        <p class="text-xs text-slate-400 mt-3">
+          Resident data: U.S. Census Bureau, American Community Survey 5-year estimates (2019-2023), Table B03002.
+          HMDA reports race and ethnicity separately; the &ldquo;Hispanic or Latino&rdquo; row uses HMDA's
+          ethnicity field for applicants and ACS's Hispanic-of-any-race count for residents.
+          Hover any bar to see raw counts.
+        </p>
       </div>
 
-      <!-- Table -->
-      <div class="bg-white rounded-lg border border-slate-200 p-5">
-        <h2 class="text-base font-semibold text-slate-900 mb-3">Detail</h2>
+      <!-- Gap table -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5 lg:col-span-3">
+        <h2 class="text-base font-semibold text-slate-900 mb-3">Representation gap</h2>
+        <p class="text-xs text-slate-500 mb-3">
+          Each cell shows raw count with the share of total in parentheses.
+          Sorted by largest gap (in percentage points).
+          Positive = group is overrepresented in the applicant pool relative to residents.
+          Negative = underrepresented.
+        </p>
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm">
             <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
             <tr>
-              <th class="px-3 py-2 text-left font-medium">Bucket</th>
-              <th class="px-3 py-2 text-right font-medium">Count</th>
-              <th class="px-3 py-2 text-right font-medium">Value</th>
+              <th class="px-3 py-2 text-left font-medium">Group</th>
+              <th class="px-3 py-2 text-right font-medium">Applicants</th>
+              <th class="px-3 py-2 text-right font-medium">Residents</th>
+              <th class="px-3 py-2 text-right font-medium">Gap</th>
             </tr>
             </thead>
-            <tbody id="results-table" class="divide-y divide-slate-100">
-            <!-- Filled by app.js -->
-            </tbody>
+            <tbody id="gap-table" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
       </div>
 
-    </section>
+    </div>
   </div>
 
   <!-- Footnote -->
   <footer class="mt-10 text-xs text-slate-400 leading-relaxed">
-    <p>Data source:
+    <p>Data sources:
       <a class="underline hover:text-slate-600"
          href="https://ffiec.cfpb.gov/data-publication/modified-lar/2024" target="_blank" rel="noopener">
         CFPB FFIEC HMDA Modified LAR, 2024
+      </a>
+      ·
+      <a class="underline hover:text-slate-600"
+         href="https://data.census.gov/" target="_blank" rel="noopener">
+        U.S. Census Bureau ACS 5-Year Estimates, Table B03002 (2019-2023)
       </a>.
-      This tool is an independent academic / portfolio project and is not affiliated with or endorsed by Travis Credit Union or the CFPB.
+      This tool is an independent academic / portfolio project and is not affiliated with or endorsed by Travis Credit Union, the CFPB, or the U.S. Census Bureau.
     </p>
   </footer>
 </main>
 
+<!-- Tab switcher -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const explorerBtn = document.getElementById("tab-explorer");
+    const demoBtn     = document.getElementById("tab-demographics");
+    const explorer    = document.getElementById("explorer-tab");
+    const demo        = document.getElementById("demographics-tab");
+
+    function setTab(which) {
+      const isExplorer = which === "explorer";
+      explorer.classList.toggle("hidden", !isExplorer);
+      demo.classList.toggle("hidden",      isExplorer);
+      explorerBtn.classList.toggle("tab-btn-active",  isExplorer);
+      demoBtn.classList.toggle("tab-btn-active",     !isExplorer);
+    }
+    explorerBtn.addEventListener("click", () => setTab("explorer"));
+    demoBtn.addEventListener("click",     () => setTab("demographics"));
+  });
+</script>
 <script src="/app.js"></script>
+<script src="/demographics.js"></script>
 </body>
 </html>

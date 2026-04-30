@@ -35,3 +35,22 @@ select:focus-visible {
 .filter-option:hover {
     color: #4f46e5;
 }
+
+/* ===== v2 additions ===== */
+
+/* Tab buttons */
+.tab-btn {
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    background: transparent;
+    cursor: pointer;
+}
+.tab-btn:hover {
+    color: #1e293b;
+}
+.tab-btn-active {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+}

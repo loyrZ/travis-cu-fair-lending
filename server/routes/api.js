@@ -125,4 +125,170 @@ router.get("/stats", async (req, res) => {
     }
 });
 
+// ---------- v2: /api/comparison ----------
+//
+// Compares applicant demographics (from loans) vs resident demographics (from
+// tract_demographics) for a given geography.
+//
+// Query params:
+//   level:    'tract' | 'county' | 'all'    (default 'all' = whole service area)
+//   geo_id:   tract GEOID or county FIPS, required if level != 'all'
+
+const RACE_LABELS = [
+    { label: "White",                                     acs: "pop_white_nh",       hmda: "White" },
+    { label: "Black or African American",                 acs: "pop_black_nh",       hmda: "Black or African American" },
+    { label: "Asian",                                     acs: "pop_asian_nh",       hmda: "Asian" },
+    { label: "American Indian or Alaska Native",          acs: "pop_aian_nh",        hmda: "American Indian or Alaska Native" },
+    { label: "Native Hawaiian or Other Pacific Islander", acs: "pop_nhpi_nh",        hmda: "Native Hawaiian or Other Pacific Islander" },
+    { label: "Hispanic or Latino",                        acs: "pop_hispanic",       hmda: "__ETHNICITY__" /* handled separately */ },
+    { label: "Two or more races",                         acs: "pop_two_or_more_nh", hmda: "2 or more minority races" },
+];
+
+router.get("/comparison", async (req, res) => {
+    try {
+        const level = req.query.level || "all";
+        const geoId = req.query.geo_id;
+
+        if (!["tract", "county", "all"].includes(level)) {
+            return res.status(400).json({ error: `Invalid level: ${level}` });
+        }
+        if (level !== "all" && !geoId) {
+            return res.status(400).json({ error: "geo_id is required when level is tract or county" });
+        }
+        if (geoId && !/^[0-9]{3,11}$/.test(geoId)) {
+            return res.status(400).json({ error: "geo_id must be numeric (3-11 digits)" });
+        }
+
+        // ---- Build geography filter for both queries ----
+        let loanWhere = "";
+        let demoWhere = "";
+        const loanParams = [];
+        const demoParams = [];
+
+        if (level === "tract") {
+            loanWhere = "WHERE census_tract = ?";
+            demoWhere = "WHERE census_tract = ?";
+            loanParams.push(geoId);
+            demoParams.push(geoId);
+        } else if (level === "county") {
+            const fullFips = "06" + geoId.padStart(3, "0");  // "095" → "06095"
+            loanWhere = "WHERE county_code = ?";
+            demoWhere = "WHERE county_code = ?";
+            loanParams.push(fullFips);     // ← loans table needs "06095"
+            demoParams.push(geoId);        // ← demographics table needs "095"
+        }
+        // level === 'all' has no WHERE — uses full service area
+
+        // ---- Applicant breakdown from loans ----
+        const [applicantRows] = await pool.query(
+            `SELECT derived_race AS race, COUNT(*) AS n
+             FROM loans
+             ${loanWhere}
+             GROUP BY derived_race`,
+            loanParams
+        );
+
+        const [ethRows] = await pool.query(
+            `SELECT derived_ethnicity AS eth, COUNT(*) AS n
+             FROM loans
+             ${loanWhere}
+             GROUP BY derived_ethnicity`,
+            loanParams
+        );
+
+        // ---- Resident breakdown from tract_demographics ----
+        const demoSelectCols = RACE_LABELS
+            .map(r => `SUM(${r.acs}) AS ${r.acs}`)
+            .join(", ");
+        const [demoRowsRaw] = await pool.query(
+            `SELECT SUM(total_population) AS total_pop, ${demoSelectCols}
+             FROM tract_demographics
+             ${demoWhere}`,
+            demoParams
+        );
+        const demoRow = demoRowsRaw[0] || {};
+
+        // ---- Assemble response ----
+        const applicantsByRace = {};
+        let applicantTotal = 0;
+        for (const row of applicantRows) {
+            const key = row.race || "Unknown";
+            applicantsByRace[key] = (applicantsByRace[key] || 0) + row.n;
+            applicantTotal += row.n;
+        }
+
+        const hispanicApplicants = ethRows
+            .filter(r => r.eth && /hispanic/i.test(r.eth) && !/not hispanic/i.test(r.eth))
+            .reduce((sum, r) => sum + r.n, 0);
+
+        const residentsByRace = {};
+        let residentTotal = Number(demoRow.total_pop) || 0;
+        for (const r of RACE_LABELS) {
+            residentsByRace[r.label] = Number(demoRow[r.acs]) || 0;
+        }
+
+        const gaps = RACE_LABELS.map(r => {
+            const applicantCount = r.label === "Hispanic or Latino"
+                ? hispanicApplicants
+                : (applicantsByRace[r.hmda] || 0);
+            const residentCount = residentsByRace[r.label] || 0;
+
+            const applicantPct = applicantTotal > 0
+                ? +(100 * applicantCount / applicantTotal).toFixed(1)
+                : 0;
+            const residentPct = residentTotal > 0
+                ? +(100 * residentCount / residentTotal).toFixed(1)
+                : 0;
+
+            return {
+                race: r.label,
+                applicant_count: applicantCount,
+                resident_count: residentCount,
+                applicant_pct: applicantPct,
+                resident_pct: residentPct,
+                gap: +(applicantPct - residentPct).toFixed(1),
+            };
+        });
+
+        res.json({
+            level,
+            geo_id: geoId || null,
+            applicants: { total: applicantTotal, by_race: applicantsByRace },
+            residents:  { total: residentTotal,  by_race: residentsByRace },
+            gaps,
+        });
+    } catch (err) {
+        console.error("/api/comparison error:", err);
+        res.status(500).json({ error: "Failed to compute comparison" });
+    }
+});
+
+// ---------- v2: /api/geographies ----------
+// Returns the list of available counties + tracts in the dataset, for populating
+// the v2 geography picker dropdown.
+
+router.get("/geographies", async (req, res) => {
+    try {
+        const [counties] = await pool.query(`
+            SELECT DISTINCT county_code AS code
+            FROM tract_demographics
+            WHERE county_code IS NOT NULL
+            ORDER BY county_code
+        `);
+        const [tracts] = await pool.query(`
+            SELECT census_tract AS code, county_code
+            FROM tract_demographics
+            WHERE census_tract IS NOT NULL
+            ORDER BY census_tract
+        `);
+        res.json({
+            counties: counties.map(c => c.code),
+            tracts: tracts.map(t => ({ tract: t.code, county: t.county_code })),
+        });
+    } catch (err) {
+        console.error("/api/geographies error:", err);
+        res.status(500).json({ error: "Failed to load geographies" });
+    }
+});
+
 module.exports = router;
