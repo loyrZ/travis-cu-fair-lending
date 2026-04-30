@@ -6,8 +6,8 @@ const path = require("path");
 const { parse } = require("csv-parse/sync");
 const mysql = require("mysql2/promise");
 
-const CSV_PATH = path.join(__dirname, "..", "data", "acs_b03002_ca_2023.csv");
-const ACS_YEAR = 2023;
+const CSV_PATH = path.join(__dirname, "..", "data", "acs_b03002_ca_2024.csv");
+const ACS_YEAR = 2024;
 const BATCH_SIZE = 200;
 
 // Travis CU's primary service area in California.
