@@ -55,14 +55,50 @@ Example: `/api/stats?group_by=loan_purpose&metric=approval_rate&filter_derived_r
 
 ## Roadmap
 
-**v1 (current) — Interactive data exploration**
-Slice and aggregate Travis CU's 2024 HMDA loan applications across race, ethnicity, age, sex, loan purpose, action taken, county, and loan product type. Six metrics: count, approval rate, average loan amount, average income, average interest rate, average loan-to-value ratio.
+## Roadmap
 
-**v2 — Demographic comparison** (APRIL 30)
-Pit the applicant pool against the actual reported residence demographics of each census tract, sourced from the U.S. Census Bureau's American Community Survey. Surfaces gaps between who lives in a community and who's applying for loans there.
+**v1 — Interactive data exploration** (DONE)
+Slice and aggregate Travis CU's 2024 HMDA loan applications across race,
+ethnicity, age, sex, loan purpose, action taken, county, and loan product
+type. Six metrics: count, approval rate, average loan amount, average income,
+average interest rate, average loan-to-value ratio.
 
-**v3 — Geographic visualization** (APRIL 30 or MAY 1)
-Interactive Leaflet map of Travis CU's service area. Per zip code or census tract: total applications, denial percentage, approval percentage, applicant racial composition, and population racial composition side by side. Lets an analyst see at a glance where the lender's reach matches the underlying community and where it doesn't.
+**v2 — Demographic comparison** (DONE)
+Pit the applicant pool against the actual reported residence demographics of
+each census tract and county, sourced from the U.S. Census Bureau's American
+Community Survey (Table B03002). Surfaces gaps between who lives in a
+community and who's applying for loans there.
+
+**v3 — Geographic visualization** (DONE)
+Interactive Leaflet map of Travis CU's service area. Per county: total
+applications, approval and denial rates, applicant racial composition, and
+population racial composition side by side. Branch locations marked. Click
+any county for the full demographic comparison; hover the sidebar list to
+highlight on the map.
+
+**v4 — Drill-down analysis** (DONE)
+Click any bar in the Explorer chart to expand a detailed panel for that slice:
+outcome breakdown (accepted / denied / withdrawn), income and loan-amount
+distributions (mean, median, quartiles, min, max) split by accepted vs denied,
+geographic breakdown by county and census tract, and a sortable sample of
+individual applications. Moves from "what happened" to "what happened to whom,
+and why."
+
+**v5 — Neural network denial prediction** (planned)
+A feedforward neural network trained on the HMDA dataset to predict
+application denial probability from applicant and loan features. Served
+through an Express endpoint with an interactive what-if UI: adjust race,
+ethnicity, age, income, loan amount, DTI, LTV, and loan purpose to see how
+the prediction shifts. Includes a counterfactual view showing how denial
+probability would change if a single feature were altered, holding everything
+else equal — closer to how fair-lending regulators probe for disparate impact.
+
+> Methodological note: this dataset has ~1,400 applications, well below the
+> ~20k–100k typically expected for a feedforward NN. The intent is to
+> demonstrate end-to-end ML deployment — preprocessing, training, model
+> serialization, API serving, and interactive UI — not to claim production
+> accuracy. Real fair-lending models typically use logistic regression or
+> gradient-boosted trees on much larger institutional datasets.
 
 ## Disclaimer
 

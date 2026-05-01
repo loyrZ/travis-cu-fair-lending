@@ -95,8 +95,16 @@
           <p id="summary-line" class="text-sm text-slate-500 mt-4"></p>
         </div>
         <div class="bg-white rounded-lg border border-slate-200 p-5">
+          <p class="text-lg text-blue-600 mt-2">
+            TIP: click any bar in the chart for a detailed breakdown.
+          </p>        </div>
+        <div class="bg-white rounded-lg border border-slate-200 p-5">
           <div class="relative h-80"><canvas id="results-chart"></canvas></div>
         </div>
+
+        <!-- Drilldown panel - hidden until a bar is clicked -->
+        <div id="drilldown-panel" class="hidden bg-white rounded-lg border-2 border-indigo-200 p-5"></div>
+
         <div class="bg-white rounded-lg border border-slate-200 p-5">
           <h2 class="text-base font-semibold text-slate-900 mb-3">Detail</h2>
           <div class="overflow-x-auto">
@@ -143,7 +151,6 @@
         <div class="relative h-96"><canvas id="demo-chart"></canvas></div>
         <p class="text-xs text-slate-400 mt-3">
           Resident data: U.S. Census Bureau, ACS 5-year estimates (2019-2023), Table B03002.
-          The "Hispanic or Latino" row uses HMDA's ethnicity field for applicants and ACS's Hispanic-of-any-race count for residents.
           Hover any bar to see raw counts.
         </p>
       </div>
@@ -173,7 +180,6 @@
   <!-- ============ TAB 3: Map (v3) ============ -->
   <div id="map-tab" class="hidden">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <!-- Map -->
       <div class="lg:col-span-3 bg-white rounded-lg border border-slate-200 p-3">
         <div id="v3-map" class="rounded" style="height: 600px;"></div>
         <div class="flex items-center gap-4 mt-3 text-xs text-slate-500">
@@ -191,13 +197,9 @@
           </span>
         </div>
       </div>
-
-      <!-- Sidebar -->
       <aside id="v3-sidebar" class="lg:col-span-1 bg-white rounded-lg border border-slate-200 p-4 max-h-[600px] overflow-y-auto">
         <p class="text-sm text-slate-400">Loading map…</p>
       </aside>
-
-      <!-- Detail panel (full width below) -->
       <div id="v3-detail" class="lg:col-span-4 bg-white rounded-lg border border-slate-200 p-5">
         <p class="text-sm text-slate-400 italic">Click a county to see details.</p>
       </div>
@@ -207,10 +209,9 @@
   <footer class="mt-10 text-xs text-slate-400 leading-relaxed">
     <p>Data sources:
       <a class="underline hover:text-slate-600" href="https://ffiec.cfpb.gov/data-publication/modified-lar/2024" target="_blank" rel="noopener">CFPB FFIEC HMDA Modified LAR, 2024</a> ·
-      <a class="underline hover:text-slate-600" href="https://data.census.gov/" target="_blank" rel="noopener">U.S. Census Bureau ACS 5-Year Estimates, Table B03002 (2019-2023)</a> ·
-      <a class="underline hover:text-slate-600" href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-geodatabase-file.html" target="_blank" rel="noopener">Census TIGER/Line shapefiles for boundaries</a>.
+      <a class="underline hover:text-slate-600" href="https://data.census.gov/" target="_blank" rel="noopener">U.S. Census Bureau ACS 5-Year Estimates, Table B03002 (2019-2023)</a>.
       Map tiles © OpenStreetMap contributors.
-      This tool is an independent academic / portfolio project and is not affiliated with or endorsed by Travis Credit Union, the CFPB, or the U.S. Census Bureau.
+      Independent academic / portfolio project. Not affiliated with Travis Credit Union or the CFPB.
     </p>
   </footer>
 </main>
@@ -237,5 +238,6 @@
 <script src="/app.js"></script>
 <script src="/demographics.js"></script>
 <script src="/map.js"></script>
+<script src="/drilldown.js"></script>
 </body>
 </html>
