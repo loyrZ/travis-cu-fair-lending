@@ -34,6 +34,7 @@ async function makeDatabase(connection) {
     }
 }
 
+
 async function makeLoansTable(connection) {
     const [result] = await connection.query(`
     CREATE TABLE IF NOT EXISTS \`${process.env.DB_NAME}\`.\`loans\` (
@@ -92,6 +93,39 @@ async function makeLoansTable(connection) {
     }
 }
 
+async function makeTractDemographicsTable(connection) {
+    const [result] = await connection.query(`
+        CREATE TABLE IF NOT EXISTS \`${process.env.DB_NAME}\`.\`tract_demographics\` (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            census_tract VARCHAR(11) COLLATE utf8mb4_unicode_ci NOT NULL,
+            acs_year SMALLINT UNSIGNED NOT NULL,
+            state_code VARCHAR(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            county_code VARCHAR(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+            total_population INT UNSIGNED DEFAULT NULL,
+            pop_white_nh INT UNSIGNED DEFAULT NULL,
+            pop_black_nh INT UNSIGNED DEFAULT NULL,
+            pop_asian_nh INT UNSIGNED DEFAULT NULL,
+            pop_aian_nh INT UNSIGNED DEFAULT NULL,
+            pop_nhpi_nh INT UNSIGNED DEFAULT NULL,
+            pop_other_nh INT UNSIGNED DEFAULT NULL,
+            pop_two_or_more_nh INT UNSIGNED DEFAULT NULL,
+            pop_hispanic INT UNSIGNED DEFAULT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uq_tract_year (census_tract, acs_year),
+            INDEX idx_county (county_code),
+            INDEX idx_year (acs_year)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    if (result && result.warningStatus > 0) {
+        const [warningResult] = await connection.query("SHOW WARNINGS");
+        displayWarningMessage(warningResult[0]);
+    } else {
+        console.log("Created Tract Demographics Table!");
+    }
+}
+
 (async function main() {
     let connection = null;
     try {
@@ -99,6 +133,7 @@ async function makeLoansTable(connection) {
         await makeDatabase(connection);
         await connection.query(`USE ${process.env.DB_NAME}`);
         await makeLoansTable(connection);
+        await makeTractDemographicsTable(connection);
         connection.close();
         return;
     } catch (error) {
