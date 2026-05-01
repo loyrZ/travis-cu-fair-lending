@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node scripts/setupDatabase.js && node scripts/seedDatabase.js && node server/index.js",
+    "start": "node scripts/setupDatabase.js && node scripts/seedDatabase.js && node scripts/seedDemographics.js && node server/index.js",
     "dev": "node_modules/.bin/nodemon server/index.js",
     "builddb": "node scripts/setupDatabase.js",
     "seed": "node scripts/seedDatabase.js",
