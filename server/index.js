@@ -24,6 +24,6 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
-app.listen(PORT, "127.0.0.1", () => {
-    console.log(`Fair-lending tool running at http://127.0.0.1:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Fair-lending tool running at http://localhost:${PORT}`);
 });
