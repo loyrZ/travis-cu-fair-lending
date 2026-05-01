@@ -1,0 +1,28 @@
+{
+  "_comment": "Travis CU branch locations. Lat/lng are approximate, geocoded from public addresses. Edit freely — frontend re-fetches on load.",
+  "_source": "https://www.traviscu.org/locations/ — verified 2026-04-30",
+  "branches": [
+    { "name": "Vacaville (HQ - One Travis Way)",       "address": "1 Travis Way, Vacaville, CA 95687",            "city": "Vacaville",   "county_fips": "095", "lat": 38.3577, "lng": -121.9602 },
+    { "name": "Vacaville (Peabody)",                   "address": "2010 Peabody Road, Vacaville, CA 95687",        "city": "Vacaville",   "county_fips": "095", "lat": 38.3776, "lng": -121.9540 },
+    { "name": "Vacaville (Harbison)",                  "address": "2020 Harbison Drive, Vacaville, CA 95687",      "city": "Vacaville",   "county_fips": "095", "lat": 38.3580, "lng": -121.9683 },
+    { "name": "Vacaville (Cernon)",                    "address": "11 Cernon Street, Vacaville, CA 95688",         "city": "Vacaville",   "county_fips": "095", "lat": 38.3499, "lng": -121.9877 },
+    { "name": "Fairfield (Gateway)",                   "address": "1340 Gateway Boulevard, Fairfield, CA 94533",   "city": "Fairfield",   "county_fips": "095", "lat": 38.2655, "lng": -122.0395 },
+    { "name": "Fairfield (Business Center)",           "address": "5075 Business Center Drive, Fairfield, CA 94534","city": "Fairfield",  "county_fips": "095", "lat": 38.2329, "lng": -122.1330 },
+    { "name": "Fairfield (N Texas)",                   "address": "2570 North Texas Street, Fairfield, CA 94533",  "city": "Fairfield",   "county_fips": "095", "lat": 38.2790, "lng": -122.0497 },
+    { "name": "Fairfield (Skymaster - Travis AFB)",    "address": "659 Skymaster Drive, Fairfield, CA 94535",      "city": "Fairfield",   "county_fips": "095", "lat": 38.2630, "lng": -121.9410 },
+    { "name": "Suisun",                                "address": "131 Sunset Avenue, Suisun, CA 94585",           "city": "Suisun",      "county_fips": "095", "lat": 38.2382, "lng": -122.0290 },
+    { "name": "Vallejo",                               "address": "1796 Tuolumne Street, Vallejo, CA 94589",       "city": "Vallejo",     "county_fips": "095", "lat": 38.1180, "lng": -122.2610 },
+    { "name": "Benicia",                               "address": "836 Southampton Rd, Benicia, CA 94510",         "city": "Benicia",     "county_fips": "095", "lat": 38.0760, "lng": -122.1750 },
+    { "name": "Dixon",                                 "address": "1450 Ary Ln, Dixon, CA 95620",                  "city": "Dixon",       "county_fips": "095", "lat": 38.4380, "lng": -121.8336 },
+    { "name": "Davis",                                 "address": "1380 East Covell Boulevard, Davis, CA 95616",   "city": "Davis",       "county_fips": "113", "lat": 38.5605, "lng": -121.7300 },
+    { "name": "Woodland",                              "address": "1372 East Main Street, Woodland, CA 95776",     "city": "Woodland",    "county_fips": "113", "lat": 38.6740, "lng": -121.7430 },
+    { "name": "Concord",                               "address": "1257 Willow Pass Road, Concord, CA 94520",      "city": "Concord",     "county_fips": "013", "lat": 37.9760, "lng": -122.0290 },
+    { "name": "Antioch (Lone Tree)",                   "address": "2721 Lone Tree Way, Antioch, CA 94509",         "city": "Antioch",     "county_fips": "013", "lat": 37.9920, "lng": -121.7900 },
+    { "name": "Antioch (E Lone Tree)",                 "address": "5819 Lone Tree Way, Antioch, CA 94531",         "city": "Antioch",     "county_fips": "013", "lat": 37.9760, "lng": -121.7400 },
+    { "name": "Clayton",                               "address": "5441 Clayton Road, Clayton, CA 94517",          "city": "Clayton",     "county_fips": "013", "lat": 37.9410, "lng": -121.9410 },
+    { "name": "Richmond",                              "address": "3300 Klose Way, Richmond, CA 94806",            "city": "Richmond",    "county_fips": "013", "lat": 37.9790, "lng": -122.3370 },
+    { "name": "Napa",                                  "address": "3263 Claremont Way, Napa, CA 94558",            "city": "Napa",        "county_fips": "055", "lat": 38.3170, "lng": -122.2920 },
+    { "name": "Atwater",                               "address": "981 Bellevue Road, Atwater, CA 95301",          "city": "Atwater",     "county_fips": "099", "lat": 37.3540, "lng": -120.6230 },
+    { "name": "Merced",                                "address": "1194 West Olive Avenue, Merced, CA 95348",      "city": "Merced",      "county_fips": "099", "lat": 37.3050, "lng": -120.5060 }
+  ]
+}
