@@ -2,7 +2,7 @@
 
 An interactive analytics tool for exploring Travis Credit Union's 2024 HMDA loan application data, sourced directly from the Consumer Financial Protection Bureau.
 
-Slice 1,443 real loan applications across race, ethnicity, age, sex, loan purpose, action taken, county, and loan product type. Aggregate by count, approval rate, average loan amount, average income, average interest rate, or average loan-to-value ratio.
+Slice 1,442 ~ 1,443 real loan applications across race, ethnicity, age, sex, loan purpose, action taken, county, and loan product type. Aggregate by count, approval rate, average loan amount, average income, average interest rate, or average loan-to-value ratio.
 
 ## Why
 
@@ -36,9 +36,9 @@ Requires Node 18+ and MySQL 8+.
 
 3. Initialize the schema, seed real Travis CU data, then run:
 
-       npm run builddb
-       npm run seed
-       npm start
+   npm run builddb
+   npm run seed
+   npm start
 
 4. Open http://localhost:3000
 
@@ -84,7 +84,7 @@ geographic breakdown by county and census tract, and a sortable sample of
 individual applications. Moves from "what happened" to "what happened to whom,
 and why."
 
-**v5 — Neural network denial prediction** (planned)
+**v5 — Neural network denial prediction** (DONE)
 A feedforward neural network trained on the HMDA dataset to predict
 application denial probability from applicant and loan features. Served
 through an Express endpoint with an interactive what-if UI: adjust race,
