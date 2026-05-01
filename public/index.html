@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Leaflet (v3) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -28,8 +27,18 @@
       Source:
       <a href="https://ffiec.cfpb.gov/data-browser/data/2024?category=states&items=CA&leis=549300GAX7IKJUKCJE72"
          target="_blank" rel="noopener"
+         class="underline hover:text-indigo-600">CFPB FFIEC HMDA Modified LAR, 2024</a>
+      ·
+      <a href="https://github.com/loyrZ/travis-cu-fair-lending"
+         target="_blank" rel="noopener"
+         class="underline hover:text-indigo-600">Source code on GitHub</a>
+    </p>
+    <p class="text-xs text-slate-400 mt-2">
+      Source:
+      <a href="https://data.census.gov/table?q=B03002:+Hispanic+or+Latino+Origin+by+Race&g=040XX00US06$1400000"
+         target="_blank" rel="noopener"
          class="underline hover:text-indigo-600">
-        CFPB FFIEC HMDA Modified LAR, 2024
+        U.S. Census Bureau — ACS 5-Year Estimates (2019–2023), Table B03002
       </a>
       ·
       <a href="https://github.com/loyrZ/travis-cu-fair-lending"
@@ -43,17 +52,16 @@
 
 <main class="max-w-7xl mx-auto px-6 py-6">
 
-  <!-- Tab switcher -->
-  <div class="flex gap-2 mb-6 border-b border-slate-200">
+  <div class="flex gap-2 mb-6 border-b border-slate-200 flex-wrap">
     <button id="tab-explorer"     class="tab-btn tab-btn-active px-4 py-2 text-sm font-medium">Explorer</button>
     <button id="tab-demographics" class="tab-btn px-4 py-2 text-sm font-medium">Demographic Comparison</button>
     <button id="tab-map"          class="tab-btn px-4 py-2 text-sm font-medium">Map</button>
+    <button id="tab-predict"      class="tab-btn px-4 py-2 text-sm font-medium">Predict <span class="text-xs text-indigo-500 ml-1">NN</span></button>
   </div>
 
-  <!-- ============ TAB 1: Explorer (v1) ============ -->
+  <!-- ============ TAB 1: Explorer (v1 + v4 drilldown) ============ -->
   <div id="explorer-tab">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
       <aside class="lg:col-span-1 bg-white rounded-lg border border-slate-200 p-5 h-fit sticky top-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-base font-semibold text-slate-900">Filters</h2>
@@ -93,18 +101,12 @@
             </label>
           </div>
           <p id="summary-line" class="text-sm text-slate-500 mt-4"></p>
+          <p class="text-xs text-indigo-600 mt-2">💡 Tip: click any bar in the chart for a detailed breakdown.</p>
         </div>
-        <div class="bg-white rounded-lg border border-slate-200 p-5">
-          <p class="text-lg text-blue-600 mt-2">
-            TIP: click any bar in the chart for a detailed breakdown.
-          </p>        </div>
         <div class="bg-white rounded-lg border border-slate-200 p-5">
           <div class="relative h-80"><canvas id="results-chart"></canvas></div>
         </div>
-
-        <!-- Drilldown panel - hidden until a bar is clicked -->
         <div id="drilldown-panel" class="hidden bg-white rounded-lg border-2 border-indigo-200 p-5"></div>
-
         <div class="bg-white rounded-lg border border-slate-200 p-5">
           <h2 class="text-base font-semibold text-slate-900 mb-3">Detail</h2>
           <div class="overflow-x-auto">
@@ -124,7 +126,7 @@
     </div>
   </div>
 
-  <!-- ============ TAB 2: Demographics (v2) ============ -->
+  <!-- ============ TAB 2: Demographics ============ -->
   <div id="demographics-tab" class="hidden">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="bg-white rounded-lg border border-slate-200 p-5 lg:col-span-3">
@@ -177,7 +179,7 @@
     </div>
   </div>
 
-  <!-- ============ TAB 3: Map (v3) ============ -->
+  <!-- ============ TAB 3: Map ============ -->
   <div id="map-tab" class="hidden">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <div class="lg:col-span-3 bg-white rounded-lg border border-slate-200 p-3">
@@ -206,6 +208,27 @@
     </div>
   </div>
 
+  <!-- ============ TAB 4: Predict (v5) ============ -->
+  <div id="predict-tab" class="hidden">
+    <div class="grid grid-cols-1 gap-6">
+      <div class="bg-white rounded-lg border border-slate-200 p-5">
+        <h2 class="text-lg font-semibold text-slate-900 mb-1">Denial-probability model</h2>
+        <p class="text-sm text-slate-500 mb-3">
+          A small feedforward neural network trained on Travis CU's 2024 HMDA data.
+          Enter an applicant profile to get a predicted denial probability and a counterfactual breakdown.
+        </p>
+        <div id="predict-model-info"></div>
+      </div>
+
+      <div class="bg-white rounded-lg border border-slate-200 p-5">
+        <h3 class="text-base font-semibold text-slate-900 mb-4">Applicant profile</h3>
+        <div id="predict-form"></div>
+      </div>
+
+      <div id="predict-result" class="bg-white rounded-lg border border-slate-200 p-5"></div>
+    </div>
+  </div>
+
   <footer class="mt-10 text-xs text-slate-400 leading-relaxed">
     <p>Data sources:
       <a class="underline hover:text-slate-600" href="https://ffiec.cfpb.gov/data-publication/modified-lar/2024" target="_blank" rel="noopener">CFPB FFIEC HMDA Modified LAR, 2024</a> ·
@@ -216,13 +239,13 @@
   </footer>
 </main>
 
-<!-- Tab switcher -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const tabs = {
       explorer:     { btn: document.getElementById("tab-explorer"),     panel: document.getElementById("explorer-tab") },
       demographics: { btn: document.getElementById("tab-demographics"), panel: document.getElementById("demographics-tab") },
       map:          { btn: document.getElementById("tab-map"),          panel: document.getElementById("map-tab") },
+      predict:      { btn: document.getElementById("tab-predict"),      panel: document.getElementById("predict-tab") },
     };
     function setTab(active) {
       for (const [key, t] of Object.entries(tabs)) {
@@ -239,5 +262,6 @@
 <script src="/demographics.js"></script>
 <script src="/map.js"></script>
 <script src="/drilldown.js"></script>
+<script src="/predict.js"></script>
 </body>
 </html>

@@ -1,0 +1,157 @@
+{
+  "numeric": {
+    "loan_amount": {
+      "mean": 163935.28183716076,
+      "std": 296095.527783794
+    },
+    "income": {
+      "mean": 138576.3440860215,
+      "std": 91680.07182277935
+    },
+    "loan_to_value_ratio": {
+      "mean": 60.44467724867724,
+      "std": 20.177090773736428
+    }
+  },
+  "categorical": {
+    "derived_race": [
+      "2 or more minority races",
+      "American Indian or Alaska Native",
+      "Asian",
+      "Black or African American",
+      "Joint",
+      "Native Hawaiian or Other Pacific Islander",
+      "Race Not Available",
+      "White",
+      "__UNKNOWN__"
+    ],
+    "derived_ethnicity": [
+      "Ethnicity Not Available",
+      "Hispanic or Latino",
+      "Joint",
+      "Not Hispanic or Latino",
+      "__UNKNOWN__"
+    ],
+    "derived_sex": [
+      "Female",
+      "Joint",
+      "Male",
+      "Sex Not Available",
+      "__UNKNOWN__"
+    ],
+    "applicant_age": [
+      "25-34",
+      "35-44",
+      "45-54",
+      "55-64",
+      "65-74",
+      "<25",
+      ">74",
+      "__UNKNOWN__"
+    ],
+    "loan_purpose": [
+      "Cash-out refinancing",
+      "Home improvement",
+      "Home purchase",
+      "Other purpose",
+      "Refinancing",
+      "__UNKNOWN__"
+    ],
+    "derived_loan_product_type": [
+      "Conventional:First Lien",
+      "Conventional:Subordinate Lien",
+      "FHA:First Lien",
+      "VA:First Lien",
+      "__UNKNOWN__"
+    ],
+    "debt_to_income_ratio": [
+      "20%-<30%",
+      "30%-<36%",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46",
+      "47",
+      "48",
+      "49",
+      "50%-60%",
+      "<20%",
+      ">60%",
+      "__UNKNOWN__"
+    ],
+    "county_code": [
+      "06001",
+      "06007",
+      "06009",
+      "06011",
+      "06013",
+      "06017",
+      "06019",
+      "06021",
+      "06033",
+      "06037",
+      "06039",
+      "06043",
+      "06047",
+      "06055",
+      "06057",
+      "06061",
+      "06063",
+      "06065",
+      "06067",
+      "06071",
+      "06073",
+      "06075",
+      "06077",
+      "06081",
+      "06085",
+      "06093",
+      "06095",
+      "06097",
+      "06099",
+      "06101",
+      "06103",
+      "06109",
+      "06111",
+      "06113",
+      "06115",
+      "__UNKNOWN__"
+    ]
+  },
+  "input_dim": 97,
+  "numeric_features": [
+    "loan_amount",
+    "income",
+    "loan_to_value_ratio"
+  ],
+  "categorical_features": [
+    "derived_race",
+    "derived_ethnicity",
+    "derived_sex",
+    "applicant_age",
+    "loan_purpose",
+    "derived_loan_product_type",
+    "debt_to_income_ratio",
+    "county_code"
+  ],
+  "test_metrics": {
+    "tp": 56,
+    "fp": 11,
+    "tn": 152,
+    "fn": 19,
+    "accuracy": 0.8739495798319328,
+    "precision": 0.835820895522388,
+    "recall": 0.7466666666666667,
+    "f1": 0.7887323943661971
+  },
+  "trained_at": "2026-05-01T02:21:39.692Z",
+  "train_rows": 958,
+  "test_rows": 238
+}

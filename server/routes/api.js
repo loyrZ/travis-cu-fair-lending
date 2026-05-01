@@ -531,4 +531,172 @@ router.get("/map-data", async (req, res) => {
     }
 });
 
+"use strict";
+
+/**
+ * v5 additions to api.js
+ * Append these endpoints to your existing routes/api.js, ABOVE module.exports.
+ *
+ * New endpoints:
+ *   GET  /api/predict-options  — returns dropdown options + numeric defaults for the UI
+ *   POST /api/predict          — takes an applicant profile, returns denial probability +
+ *                                counterfactual analysis (how the prediction shifts when
+ *                                each feature is changed individually)
+ *
+ * Model loads lazily on the first request and stays in memory for subsequent ones.
+ */
+
+const path = require("path");
+const fs = require("fs");
+const tf = require("@tensorflow/tfjs-node");
+
+const MODEL_DIR = path.join(__dirname, "..", "..", "data", "model");
+
+// Lazy singletons — first request loads the model, subsequent reuse.
+let _model = null;
+let _encoder = null;
+
+async function getModel() {
+    if (_model) return { model: _model, encoder: _encoder };
+
+    const encoderPath = path.join(MODEL_DIR, "encoder.json");
+    const modelPath = path.join(MODEL_DIR, "model.json");
+
+    if (!fs.existsSync(encoderPath) || !fs.existsSync(modelPath)) {
+        throw new Error(
+            "Model not found. Run `node scripts/trainModel.js` first."
+        );
+    }
+
+    _encoder = JSON.parse(fs.readFileSync(encoderPath, "utf8"));
+    _model = await tf.loadLayersModel(`file://${modelPath}`);
+    console.log(`[v5] Model loaded from ${MODEL_DIR}`);
+    return { model: _model, encoder: _encoder };
+}
+
+// ---------- Encoding (must match trainModel.js exactly) ----------
+
+function encodeRow(row, encoder) {
+    const vec = [];
+
+    for (const col of encoder.numeric_features) {
+        const raw = row[col];
+        const num = raw == null || raw === "" || isNaN(Number(raw)) ? null : Number(raw);
+        const { mean, std } = encoder.numeric[col];
+        vec.push(num == null ? 0 : (num - mean) / std);
+    }
+
+    for (const col of encoder.categorical_features) {
+        const choices = encoder.categorical[col];
+        const val = row[col] == null || row[col] === "" ? "__UNKNOWN__" : String(row[col]);
+        const idx = choices.indexOf(val);
+        const fallbackIdx = choices.indexOf("__UNKNOWN__");
+        for (let i = 0; i < choices.length; i++) {
+            vec.push(i === (idx >= 0 ? idx : fallbackIdx) ? 1 : 0);
+        }
+    }
+
+    return vec;
+}
+
+async function predictOne(profile, model, encoder) {
+    const vec = encodeRow(profile, encoder);
+    const t = tf.tensor2d([vec]);
+    const out = model.predict(t);
+    const prob = (await out.data())[0];
+    t.dispose(); out.dispose();
+    return prob;
+}
+
+// ---------- Endpoint: dropdown options + numeric defaults ----------
+
+router.get("/predict-options", async (req, res) => {
+    try {
+        const { encoder } = await getModel();
+
+        // Build dropdown options for each categorical feature, excluding the UNKNOWN bucket
+        const dropdowns = {};
+        for (const col of encoder.categorical_features) {
+            dropdowns[col] = encoder.categorical[col].filter(v => v !== "__UNKNOWN__");
+        }
+
+        // For numeric features, return mean (as a default value) and std (for slider scaling)
+        const numerics = {};
+        for (const col of encoder.numeric_features) {
+            numerics[col] = {
+                mean: Math.round(encoder.numeric[col].mean),
+                std: Math.round(encoder.numeric[col].std),
+            };
+        }
+
+        res.json({
+            categorical: dropdowns,
+            numeric: numerics,
+            test_metrics: encoder.test_metrics,
+            trained_at: encoder.trained_at,
+            train_rows: encoder.train_rows,
+            test_rows: encoder.test_rows,
+        });
+    } catch (err) {
+        console.error("/api/predict-options error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ---------- Endpoint: prediction + counterfactuals ----------
+
+router.post("/predict", async (req, res) => {
+    try {
+        const { model, encoder } = await getModel();
+        const profile = req.body || {};
+
+        // 1. Base prediction
+        const baseProb = await predictOne(profile, model, encoder);
+
+        // 2. Counterfactuals: for the demographic features, re-predict with that
+        //    feature flipped to each of its other values, holding everything else equal.
+        //    These are the comparisons that matter for fair-lending analysis.
+        const COUNTERFACTUAL_FEATURES = [
+            "derived_race",
+            "derived_ethnicity",
+            "derived_sex",
+            "applicant_age",
+        ];
+
+        const counterfactuals = {};
+        for (const col of COUNTERFACTUAL_FEATURES) {
+            const choices = encoder.categorical[col].filter(v => v !== "__UNKNOWN__");
+            const currentValue = profile[col] || null;
+            const variants = [];
+            for (const v of choices) {
+                if (v === currentValue) continue;
+                const altProfile = { ...profile, [col]: v };
+                const altProb = await predictOne(altProfile, model, encoder);
+                variants.push({
+                    value: v,
+                    predicted_denial: +(altProb * 100).toFixed(1),
+                    delta: +((altProb - baseProb) * 100).toFixed(1),
+                });
+            }
+            // Sort by absolute delta — biggest swings first
+            variants.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+            counterfactuals[col] = {
+                current_value: currentValue,
+                current_predicted_denial: +(baseProb * 100).toFixed(1),
+                variants,
+            };
+        }
+
+        res.json({
+            predicted_denial: +(baseProb * 100).toFixed(1),
+            predicted_approval: +((1 - baseProb) * 100).toFixed(1),
+            confidence: baseProb >= 0.5 ? "denial likely" : "approval likely",
+            counterfactuals,
+        });
+    } catch (err) {
+        console.error("/api/predict error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
